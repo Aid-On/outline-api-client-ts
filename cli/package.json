@@ -1,0 +1,36 @@
+{
+  "name": "oln-cli",
+  "version": "1.0.0",
+  "description": "CLI tool for Outline API",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "oln": "./dist/index.js"
+  },
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "link": "npm run build && npm link",
+    "unlink": "npm unlink -g oln-cli",
+    "install:local": "npm run build && npm install -g .",
+    "uninstall:local": "npm uninstall -g oln-cli"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "dotenv": "^16.3.1",
+    "inquirer": "^9.2.12",
+    "ora": "^8.0.1",
+    "outline-api-client": "file:.."
+  },
+  "devDependencies": {
+    "@types/inquirer": "^9.0.7",
+    "@types/node": "^20.11.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.3"
+  }
+}

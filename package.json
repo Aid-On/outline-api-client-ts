@@ -1,0 +1,78 @@
+{
+  "name": "outline-api-client-ts",
+  "version": "1.0.0",
+  "description": "Outline APIのTypeScriptクライアントライブラリ - TypeScript client library for Outline API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "demo:dev": "vite",
+    "demo:build": "vite build",
+    "demo:preview": "vite preview",
+    "prepublishOnly": "npm run build && npm run type-check"
+  },
+  "keywords": [
+    "outline",
+    "api",
+    "client",
+    "typescript",
+    "wiki",
+    "knowledge-base",
+    "documentation"
+  ],
+  "author": "aid-on",
+  "license": "MIT",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Aid-On/outline-api-client.git"
+  },
+  "homepage": "https://Aid-On.github.io/outline-api-client/",
+  "bugs": {
+    "url": "https://github.com/Aid-On/outline-api-client/issues"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "@vitejs/plugin-react": "^4.2.1",
+    "@vitest/coverage-v8": "^1.2.1",
+    "eslint": "^8.56.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-syntax-highlighter": "^15.5.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.12",
+    "vitest": "^1.2.1"
+  },
+  "dependencies": {
+    "undici": "^6.3.0"
+  }
+}
