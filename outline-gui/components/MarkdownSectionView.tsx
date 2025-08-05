@@ -120,7 +120,7 @@ const Section = memo(({
   isCollapsed: boolean
   copiedSection: string | null
   onToggle: () => void
-  onCopy: (includeChildren: boolean) => void
+  onCopy: () => void
   components: any
   renderChildren: () => React.ReactNode
 }) => {
@@ -149,32 +149,17 @@ const Section = memo(({
             </h2>
           </div>
         </button>
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={() => onCopy(false)}
-            className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors opacity-0 group-hover:opacity-100`}
-            title="Copy section content only"
-          >
-            {copiedSection === `${section.id}-content` ? (
-              <Check className={`h-4 w-4 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
-            ) : (
-              <FileText className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-            )}
-          </button>
-          {hasChildren && (
-            <button
-              onClick={() => onCopy(true)}
-              className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors opacity-0 group-hover:opacity-100`}
-              title="Copy section with all subsections"
-            >
-              {copiedSection === `${section.id}-all` ? (
-                <Check className={`h-4 w-4 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
-              ) : (
-                <FolderOpen className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
-              )}
-            </button>
+        <button
+          onClick={onCopy}
+          className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} transition-colors opacity-0 group-hover:opacity-100`}
+          title={hasChildren ? "Copy section with all subsections" : "Copy section"}
+        >
+          {copiedSection === section.id ? (
+            <Check className={`h-4 w-4 ${darkMode ? 'text-green-400' : 'text-green-600'}`} />
+          ) : (
+            <Copy className={`h-4 w-4 ${darkMode ? 'text-gray-400' : 'text-gray-600'}`} />
           )}
-        </div>
+        </button>
       </div>
       
       {!isCollapsed && (
@@ -362,20 +347,16 @@ export default function MarkdownSectionView({
   const copySection = useCallback(async (section: MarkdownSection, includeChildren: boolean) => {
     try {
       let content: string
-      if (includeChildren) {
-        const getFullContent = (s: MarkdownSection): string => {
-          let c = s.content
-          if (s.children.length > 0) {
-            c += '\n\n' + s.children.map(child => getFullContent(child)).join('\n\n')
-          }
-          return c
+      // Always include children when copying to match hierarchical behavior
+      const getFullContent = (s: MarkdownSection): string => {
+        let c = s.content
+        if (s.children.length > 0) {
+          c += '\n\n' + s.children.map(child => getFullContent(child)).join('\n\n')
         }
-        content = getFullContent(section)
-        setCopiedSection(`${section.id}-all`)
-      } else {
-        content = section.content
-        setCopiedSection(`${section.id}-content`)
+        return c
       }
+      content = getFullContent(section)
+      setCopiedSection(section.id)
       
       await navigator.clipboard.writeText(content)
       setTimeout(() => setCopiedSection(null), 2000)
@@ -409,7 +390,7 @@ export default function MarkdownSectionView({
         isCollapsed={isCollapsed}
         copiedSection={copiedSection}
         onToggle={() => toggleSection(section.id)}
-        onCopy={(includeChildren) => copySection(section, includeChildren)}
+        onCopy={() => copySection(section, true)}
         components={mergedComponents}
         renderChildren={() => section.children.map(child => renderSection(child, depth + 1))}
       />

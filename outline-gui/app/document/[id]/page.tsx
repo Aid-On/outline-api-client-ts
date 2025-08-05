@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
-import { Settings, ArrowLeft, Download, Clock, User, Moon, Sun, RefreshCw, FolderTree, List, FileText, Maximize2, Minimize2, Copy, Check, MoreVertical, Loader } from 'lucide-react'
+import { Settings, ArrowLeft, Download, Clock, User, Moon, Sun, RefreshCw, FolderTree, List, FileText, Maximize2, Minimize2, Copy, Check, MoreVertical, Loader, ChevronLeft, FileJson, Code } from 'lucide-react'
 import SettingsModal from '../../../components/SettingsModal'
 import { useDocument } from '../../../hooks/useOutlineAPI'
 import { useQueryClient } from '@tanstack/react-query'
@@ -39,6 +39,8 @@ export default function DocumentPage() {
   const [allSectionsExpanded, setAllSectionsExpanded] = useState(true)
   const [sections, setSections] = useState<any[]>([])
   const [showMenu, setShowMenu] = useState(false)
+  const [showCopySubmenu, setShowCopySubmenu] = useState(false)
+  const [showExportSubmenu, setShowExportSubmenu] = useState(false)
   
   const [collapsedSections, setCollapsedSections] = useState<Set<string>>(new Set())
   const [copiedDocument, setCopiedDocument] = useState(false)
@@ -166,6 +168,85 @@ export default function DocumentPage() {
     window.document.body.removeChild(a)
     URL.revokeObjectURL(url)
   }
+
+  const handleExportAsMarkdown = () => {
+    if (!document) return
+    
+    const blob = new Blob([document.text || ''], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = window.document.createElement('a')
+    a.href = url
+    a.download = `${document.title || 'document'}.md`
+    window.document.body.appendChild(a)
+    a.click()
+    window.document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    setShowMenu(false)
+    setShowExportSubmenu(false)
+  }
+
+  const handleExportAsHTML = () => {
+    if (!document) return
+    
+    // Simple markdown to HTML conversion
+    const html = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>${document.title || 'Document'}</title>
+    <style>
+        body { font-family: -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        pre { background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        code { background: #f5f5f5; padding: 2px 4px; border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <h1>${document.title}</h1>
+    <div id="content"></div>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        document.getElementById('content').innerHTML = marked.parse(\`${document.text?.replace(/`/g, '\\`') || ''}\`);
+    </script>
+</body>
+</html>`
+    
+    const blob = new Blob([html], { type: 'text/html' })
+    const url = URL.createObjectURL(blob)
+    const a = window.document.createElement('a')
+    a.href = url
+    a.download = `${document.title || 'document'}.html`
+    window.document.body.appendChild(a)
+    a.click()
+    window.document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    setShowMenu(false)
+    setShowExportSubmenu(false)
+  }
+
+  const handleExportAsJSON = () => {
+    if (!document) return
+    
+    const jsonData = {
+      id: document.id,
+      title: document.title,
+      content: document.text,
+      createdAt: document.createdAt,
+      updatedAt: document.updatedAt,
+      createdBy: document.createdBy
+    }
+    
+    const blob = new Blob([JSON.stringify(jsonData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = window.document.createElement('a')
+    a.href = url
+    a.download = `${document.title || 'document'}.json`
+    window.document.body.appendChild(a)
+    a.click()
+    window.document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    setShowMenu(false)
+    setShowExportSubmenu(false)
+  }
   
   const handleCopyDocument = async () => {
     if (!document) return
@@ -174,6 +255,69 @@ export default function DocumentPage() {
       await navigator.clipboard.writeText(document.text || '')
       setCopiedDocument(true)
       setTimeout(() => setCopiedDocument(false), 2000)
+    } catch (err) {
+      console.error('Failed to copy document:', err)
+    }
+  }
+
+  const handleCopyAsMarkdown = async () => {
+    if (!document) return
+    
+    try {
+      await navigator.clipboard.writeText(document.text || '')
+      setCopiedDocument(true)
+      setTimeout(() => setCopiedDocument(false), 2000)
+      setShowMenu(false)
+      setShowCopySubmenu(false)
+    } catch (err) {
+      console.error('Failed to copy document:', err)
+    }
+  }
+
+  const handleCopyAsPlainText = async () => {
+    if (!document) return
+    
+    try {
+      // Remove markdown formatting
+      const plainText = (document.text || '')
+        .replace(/#{1,6}\s+/g, '') // Remove headers
+        .replace(/\*\*([^*]+)\*\*/g, '$1') // Remove bold
+        .replace(/\*([^*]+)\*/g, '$1') // Remove italic
+        .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1') // Remove links
+        .replace(/```[^`]*```/g, '') // Remove code blocks
+        .replace(/`([^`]+)`/g, '$1') // Remove inline code
+        .replace(/^[-*+]\s+/gm, '') // Remove list markers
+        .replace(/^\d+\.\s+/gm, '') // Remove numbered list markers
+        .replace(/^>\s+/gm, '') // Remove blockquotes
+        .replace(/\n{3,}/g, '\n\n') // Reduce multiple newlines
+      
+      await navigator.clipboard.writeText(plainText)
+      setCopiedDocument(true)
+      setTimeout(() => setCopiedDocument(false), 2000)
+      setShowMenu(false)
+      setShowCopySubmenu(false)
+    } catch (err) {
+      console.error('Failed to copy document:', err)
+    }
+  }
+
+  const handleCopyAsJSON = async () => {
+    if (!document) return
+    
+    try {
+      const jsonData = {
+        id: document.id,
+        title: document.title,
+        content: document.text,
+        createdAt: document.createdAt,
+        updatedAt: document.updatedAt,
+        createdBy: document.createdBy
+      }
+      await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2))
+      setCopiedDocument(true)
+      setTimeout(() => setCopiedDocument(false), 2000)
+      setShowMenu(false)
+      setShowCopySubmenu(false)
     } catch (err) {
       console.error('Failed to copy document:', err)
     }
@@ -396,13 +540,14 @@ export default function DocumentPage() {
               {/* Content Area */}
               <div className={`${showHierarchy ? 'flex-1 overflow-hidden flex flex-col' : `max-w-4xl mx-auto my-8 ${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow`}`}>
                 {/* Title Bar */}
-                <div className={`px-6 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex-shrink-0`}>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <h1 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-900'} break-words`}>
-                        {document.title}
-                      </h1>
-                      <div className={`flex items-center space-x-4 text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                <div className={`py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-200'} flex-shrink-0`}>
+                  <div className="w-full">
+                    <div className={`px-4 sm:px-6 lg:px-8 ${showHierarchy ? 'max-w-[calc(min(1280px,100vw-20rem))]' : 'max-w-7xl mx-auto'} flex items-center justify-between`}>
+                      <div className="flex-1">
+                        <h1 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-900'} break-words`}>
+                          {document.title}
+                        </h1>
+                        <div className={`flex items-center space-x-4 text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {document.createdBy && (
                           <div className="flex items-center">
                             <User className="h-4 w-4 mr-1" />
@@ -417,8 +562,35 @@ export default function DocumentPage() {
                       </div>
                     </div>
                     
+                    {/* Toggle Buttons */}
+                    <div className="flex items-center space-x-2 ml-4">
+                      <button
+                        onClick={() => setShowHierarchy(!showHierarchy)}
+                        className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+                        title={showHierarchy ? "Hide Sidebar" : "Show Sidebar"}
+                      >
+                        {showHierarchy ? (
+                          <Minimize2 className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        ) : (
+                          <Maximize2 className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        )}
+                      </button>
+                      
+                      <button
+                        onClick={() => setShowSectionView(!showSectionView)}
+                        className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+                        title={showSectionView ? "Text View" : "Block View"}
+                      >
+                        {showSectionView ? (
+                          <FileText className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        ) : (
+                          <List className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
+                        )}
+                      </button>
+                    </div>
+                    
                     {/* Popup Menu */}
-                    <div className="relative ml-4">
+                    <div className="relative ml-2">
                       <button
                         onClick={() => setShowMenu(!showMenu)}
                         className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
@@ -431,59 +603,103 @@ export default function DocumentPage() {
                         <>
                           <div 
                             className="fixed inset-0 z-10" 
-                            onClick={() => setShowMenu(false)}
+                            onClick={() => {
+                              setShowMenu(false)
+                              setShowCopySubmenu(false)
+                              setShowExportSubmenu(false)
+                            }}
                           />
                           <div className={`absolute right-0 mt-2 w-56 rounded-md shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5 z-20`}>
                             <div className="py-1">
-                              <button
-                                onClick={() => {
-                                  setShowHierarchy(!showHierarchy)
-                                  setShowMenu(false)
-                                }}
-                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
-                              >
-                                <FolderTree className="h-4 w-4" />
-                                <span>{showHierarchy ? "Hide Sidebar" : "Show Sidebar"}</span>
-                              </button>
-                              
-                              <div className={`border-t ${darkMode ? 'border-gray-700' : 'border-gray-200'}`} />
-                              
-                              <button
-                                onClick={() => {
-                                  setShowSectionView(!showSectionView)
-                                  setShowMenu(false)
-                                }}
-                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
-                              >
-                                {showSectionView ? (
-                                  <FileText className="h-4 w-4" />
-                                ) : (
-                                  <List className="h-4 w-4" />
+                              {/* Copy submenu */}
+                              <div className="relative">
+                                <button
+                                  onClick={() => {
+                                    setShowCopySubmenu(!showCopySubmenu)
+                                    setShowExportSubmenu(false)
+                                  }}
+                                  className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center justify-between`}
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <Copy className="h-4 w-4" />
+                                    <span>Copy As</span>
+                                  </div>
+                                  <ChevronLeft className="h-4 w-4" />
+                                </button>
+                                
+                                {showCopySubmenu && (
+                                  <div className={`absolute right-full top-0 mr-1 w-48 rounded-md shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}>
+                                    <div className="py-1">
+                                      <button
+                                        onClick={handleCopyAsMarkdown}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <FileText className="h-4 w-4" />
+                                        <span>Markdown</span>
+                                      </button>
+                                      <button
+                                        onClick={handleCopyAsPlainText}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <FileText className="h-4 w-4" />
+                                        <span>Plain Text</span>
+                                      </button>
+                                      <button
+                                        onClick={handleCopyAsJSON}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <FileJson className="h-4 w-4" />
+                                        <span>JSON</span>
+                                      </button>
+                                    </div>
+                                  </div>
                                 )}
-                                <span>{showSectionView ? "Text View" : "Block View"}</span>
-                              </button>
+                              </div>
                               
-                              <button
-                                onClick={() => {
-                                  handleCopyDocument()
-                                  setShowMenu(false)
-                                }}
-                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
-                              >
-                                <Copy className="h-4 w-4" />
-                                <span>Copy Document</span>
-                              </button>
-                              
-                              <button
-                                onClick={() => {
-                                  handleExport()
-                                  setShowMenu(false)
-                                }}
-                                className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
-                              >
-                                <Download className="h-4 w-4" />
-                                <span>Export as Markdown</span>
-                              </button>
+                              {/* Export submenu */}
+                              <div className="relative">
+                                <button
+                                  onClick={() => {
+                                    setShowExportSubmenu(!showExportSubmenu)
+                                    setShowCopySubmenu(false)
+                                  }}
+                                  className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center justify-between`}
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <Download className="h-4 w-4" />
+                                    <span>Export As</span>
+                                  </div>
+                                  <ChevronLeft className="h-4 w-4" />
+                                </button>
+                                
+                                {showExportSubmenu && (
+                                  <div className={`absolute right-full top-0 mr-1 w-48 rounded-md shadow-lg ${darkMode ? 'bg-gray-800' : 'bg-white'} ring-1 ring-black ring-opacity-5`}>
+                                    <div className="py-1">
+                                      <button
+                                        onClick={handleExportAsMarkdown}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <FileText className="h-4 w-4" />
+                                        <span>Markdown (.md)</span>
+                                      </button>
+                                      <button
+                                        onClick={handleExportAsHTML}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <Code className="h-4 w-4" />
+                                        <span>HTML (.html)</span>
+                                      </button>
+                                      <button
+                                        onClick={handleExportAsJSON}
+                                        className={`w-full text-left px-4 py-2 text-sm ${darkMode ? 'text-gray-300 hover:bg-gray-700' : 'text-gray-700 hover:bg-gray-100'} flex items-center space-x-2`}
+                                      >
+                                        <FileJson className="h-4 w-4" />
+                                        <span>JSON (.json)</span>
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </>
@@ -618,6 +834,7 @@ export default function DocumentPage() {
                 }}
                 />
               )}
+                </div>
                 </div>
               </div>
             </>

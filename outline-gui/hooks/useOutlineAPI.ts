@@ -97,8 +97,8 @@ export function useCollectionDocuments(collectionId: string | null, { apiKey, ap
       let hasMore = true
       
       while (hasMore) {
-        // parentDocumentIdを指定しないことで、トップレベルのドキュメントのみを取得
-        const response = await fetch(`/api/documents?action=list&collectionId=${collectionId}&offset=${offset}&limit=${limit}`, {
+        // parentDocumentIdをnullで指定することで、トップレベルのドキュメントのみを取得
+        const response = await fetch(`/api/documents?action=list&collectionId=${collectionId}&parentDocumentId=null&offset=${offset}&limit=${limit}`, {
           headers: {
             'x-api-key': apiKey,
             'x-api-url': apiUrl,

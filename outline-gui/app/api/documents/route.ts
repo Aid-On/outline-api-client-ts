@@ -35,7 +35,7 @@ export async function GET(request: NextRequest) {
         const offset = searchParams.get('offset')
         const listParams = {
           collectionId: collectionId || undefined,
-          parentDocumentId: parentDocumentId || undefined,
+          parentDocumentId: parentDocumentId === 'null' ? null : parentDocumentId || undefined,
           limit: limit ? parseInt(limit) : 10,
           offset: offset ? parseInt(offset) : undefined,
         }
