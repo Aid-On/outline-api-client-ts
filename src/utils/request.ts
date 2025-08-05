@@ -28,9 +28,9 @@ export class HttpClient {
     this.fetch = options.fetchImplementation || fetch;
   }
 
-  async request<T = unknown>(
+  async request<T = unknown, B = Record<string, unknown>>(
     endpoint: string,
-    options: RequestOptions = {}
+    options: RequestOptions<B> = {}
   ): Promise<ApiResponse<T>> {
     const url = `${this.apiUrl}${endpoint}`;
     const { method = 'POST', body } = options;
@@ -88,7 +88,7 @@ export class HttpClient {
   }
 }
 
-export interface RequestOptions {
+export interface RequestOptions<T = Record<string, unknown>> {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  body?: Record<string, unknown>;
+  body?: T;
 }

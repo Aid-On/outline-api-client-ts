@@ -16,7 +16,7 @@ export class CollectionsAPI {
   constructor(private readonly httpClient: HttpClient) {}
 
   async list(options: PaginationOptions = {}): Promise<ApiResponse<Collection[]>> {
-    return this.httpClient.request<Collection[]>('/collections.list', {
+    return this.httpClient.request<Collection[], PaginationOptions>('/collections.list', {
       body: options,
     });
   }
@@ -37,7 +37,7 @@ export class CollectionsAPI {
   }
 
   async create(data: CreateCollectionData): Promise<ApiResponse<Collection>> {
-    return this.httpClient.request<Collection>('/collections.create', {
+    return this.httpClient.request<Collection, CreateCollectionData>('/collections.create', {
       body: data,
     });
   }

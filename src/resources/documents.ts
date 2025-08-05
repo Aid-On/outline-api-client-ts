@@ -18,7 +18,7 @@ export class DocumentsAPI {
   constructor(private readonly httpClient: HttpClient) {}
 
   async list(options: DocumentListOptions & PaginationOptions = {}): Promise<ApiResponse<Document[]>> {
-    return this.httpClient.request<Document[]>('/documents.list', {
+    return this.httpClient.request<Document[], DocumentListOptions & PaginationOptions>('/documents.list', {
       body: options,
     });
   }
@@ -39,7 +39,7 @@ export class DocumentsAPI {
   }
 
   async create(data: CreateDocumentData): Promise<ApiResponse<Document>> {
-    return this.httpClient.request<Document>('/documents.create', {
+    return this.httpClient.request<Document, CreateDocumentData>('/documents.create', {
       body: data,
     });
   }
