@@ -9,7 +9,7 @@ export interface MockFetchOptions {
   message?: string;
 }
 
-export function createMockFetch(options: MockFetchOptions = {}) {
+export function createMockFetch(options: MockFetchOptions = {}): ReturnType<typeof vi.fn> {
   const { status = 200, ok = true, data, error, message } = options;
 
   return vi.fn().mockResolvedValue({
@@ -24,7 +24,7 @@ export function createMockFetch(options: MockFetchOptions = {}) {
   });
 }
 
-export function createTestClient(options: Partial<OutlineClientOptions> = {}) {
+export function createTestClient(options: Partial<OutlineClientOptions> = {}): OutlineClientOptions {
   return {
     apiKey: 'test-api-key',
     apiUrl: 'https://test.outline.com/api',

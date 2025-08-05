@@ -30,7 +30,7 @@ describe('HttpClient', () => {
       }),
     };
     
-    mockFetch.mockResolvedValueOnce(mockResponse as any);
+    mockFetch.mockResolvedValueOnce(mockResponse as Response);
 
     const result = await client.request('/test.endpoint', {
       body: { test: 'data' },
@@ -63,7 +63,7 @@ describe('HttpClient', () => {
       }),
     };
     
-    mockFetch.mockResolvedValueOnce(mockResponse as any);
+    mockFetch.mockResolvedValueOnce(mockResponse as Response);
 
     await expect(
       client.request('/test.endpoint')
@@ -89,8 +89,8 @@ describe('HttpClient', () => {
     };
 
     mockFetch
-      .mockResolvedValueOnce(serverErrorResponse as any)
-      .mockResolvedValueOnce(successResponse as any);
+      .mockResolvedValueOnce(serverErrorResponse as Response)
+      .mockResolvedValueOnce(successResponse as Response);
 
     const result = await client.request('/test.endpoint');
 
@@ -107,7 +107,7 @@ describe('HttpClient', () => {
       }),
     };
 
-    mockFetch.mockResolvedValueOnce(clientErrorResponse as any);
+    mockFetch.mockResolvedValueOnce(clientErrorResponse as Response);
 
     await expect(
       client.request('/test.endpoint')

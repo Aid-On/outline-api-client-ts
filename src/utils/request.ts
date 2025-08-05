@@ -90,5 +90,5 @@ export class HttpClient {
 
 export interface RequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  body?: Record<string, any>;
+  body?: Record<string, unknown>;
 }
