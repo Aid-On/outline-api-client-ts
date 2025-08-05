@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { ArrowLeft, Edit, Trash2, Download } from 'lucide-react'
+import { ArrowLeft, Edit, Trash2, Download, Loader } from 'lucide-react'
 
 interface Document {
   id: string
@@ -96,7 +96,10 @@ export default function DocumentView({ apiKey, apiUrl, documentId, onBack }: Doc
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="text-gray-500">Loading document...</div>
+        <div className="flex flex-col items-center space-y-4">
+          <Loader className="h-8 w-8 animate-spin text-gray-500" />
+          <div className="text-gray-500">Loading document...</div>
+        </div>
       </div>
     )
   }

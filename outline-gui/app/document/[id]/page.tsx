@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic'
 import MarkdownPreview from '@uiw/react-markdown-preview'
 import rehypeHighlight from 'rehype-highlight'
 import rehypeRaw from 'rehype-raw'
-import { Settings, ArrowLeft, Download, Clock, User, Moon, Sun, RefreshCw, FolderTree, List, FileText, Maximize2, Minimize2, Copy, Check, MoreVertical } from 'lucide-react'
+import { Settings, ArrowLeft, Download, Clock, User, Moon, Sun, RefreshCw, FolderTree, List, FileText, Maximize2, Minimize2, Copy, Check, MoreVertical, Loader } from 'lucide-react'
 import SettingsModal from '../../../components/SettingsModal'
 import { useDocument } from '../../../hooks/useOutlineAPI'
 import { useQueryClient } from '@tanstack/react-query'
@@ -326,7 +326,7 @@ export default function DocumentPage() {
       <main className={`flex-1 ${showHierarchy ? 'overflow-hidden' : 'overflow-y-auto'}`}>
         <div className={`h-full ${showHierarchy ? 'flex' : ''}`}>
           {!apiKey ? (
-            <div className={`${showHierarchy ? '' : 'max-w-4xl mx-auto p-8'}`}>
+            <div className={`flex items-center justify-center ${showHierarchy ? 'h-full w-full' : 'min-h-[400px] max-w-4xl mx-auto p-8'}`}>
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                 <p className="text-yellow-800">
                   Please configure your API key in the settings.
@@ -334,14 +334,15 @@ export default function DocumentPage() {
               </div>
             </div>
           ) : loading ? (
-            <div className={`${showHierarchy ? '' : 'max-w-4xl mx-auto p-8'}`}>
-              <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6`}>
+            <div className={`flex items-center justify-center ${showHierarchy ? 'h-full w-full' : 'min-h-[400px]'}`}>
+              <div className="flex flex-col items-center space-y-4">
+                <Loader className={`h-8 w-8 animate-spin ${darkMode ? 'text-gray-400' : 'text-gray-500'}`} />
                 <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Loading document...</p>
               </div>
             </div>
           ) : error ? (
-            <div className={`${showHierarchy ? '' : 'max-w-4xl mx-auto p-8'}`}>
-              <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6`}>
+            <div className={`flex items-center justify-center ${showHierarchy ? 'h-full w-full' : 'min-h-[400px] max-w-4xl mx-auto p-8'}`}>
+              <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 ${showHierarchy ? '' : 'w-full'}`}>
                 <p className="text-red-600">{error.message}</p>
               </div>
             </div>
