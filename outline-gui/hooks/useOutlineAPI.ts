@@ -84,27 +84,42 @@ export function useDocument(id: string | null, { apiKey, apiUrl }: UseOutlineAPI
   })
 }
 
-// Collection内のドキュメント一覧取得用のフック
+// Collection内のドキュメント一覧取得用のフック（ページネーション対応）
 export function useCollectionDocuments(collectionId: string | null, { apiKey, apiUrl }: UseOutlineAPIOptions) {
   return useQuery({
     queryKey: ['documents', 'list', collectionId, apiKey, apiUrl],
     queryFn: async () => {
       if (!apiKey || !collectionId) throw new Error('API key and collection ID are required')
       
-      const response = await fetch(`/api/documents?action=list&collectionId=${collectionId}`, {
-        headers: {
-          'x-api-key': apiKey,
-          'x-api-url': apiUrl,
-        },
-      })
+      let allDocuments: any[] = []
+      let offset = 0
+      const limit = 25 // Outline API の最大値
+      let hasMore = true
       
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || 'Failed to fetch documents')
+      while (hasMore) {
+        // parentDocumentIdを指定しないことで、トップレベルのドキュメントのみを取得
+        const response = await fetch(`/api/documents?action=list&collectionId=${collectionId}&offset=${offset}&limit=${limit}`, {
+          headers: {
+            'x-api-key': apiKey,
+            'x-api-url': apiUrl,
+          },
+        })
+        
+        if (!response.ok) {
+          const error = await response.json()
+          throw new Error(error.error || 'Failed to fetch documents')
+        }
+        
+        const data = await response.json()
+        const documents = data.data || []
+        allDocuments = [...allDocuments, ...documents]
+        
+        // 取得したドキュメント数がlimit未満の場合、次のページはない
+        hasMore = documents.length === limit
+        offset += limit
       }
       
-      const data = await response.json()
-      return data.data || []
+      return allDocuments
     },
     enabled: !!apiKey && !!collectionId,
   })

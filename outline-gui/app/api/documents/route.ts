@@ -31,9 +31,13 @@ export async function GET(request: NextRequest) {
   try {
     switch (action) {
       case 'list':
+        const parentDocumentId = searchParams.get('parentDocumentId')
+        const offset = searchParams.get('offset')
         const listParams = {
           collectionId: collectionId || undefined,
+          parentDocumentId: parentDocumentId || undefined,
           limit: limit ? parseInt(limit) : 10,
+          offset: offset ? parseInt(offset) : undefined,
         }
         const listResponse = await client.documents.list(listParams)
         return NextResponse.json(listResponse)

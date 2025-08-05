@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, Search, Folder, FileText, RefreshCw } from 'lucide-react'
+import { Settings, Search, Folder, FileText, RefreshCw, Moon, Sun } from 'lucide-react'
 import SettingsModal from '../components/SettingsModal'
 import Link from 'next/link'
 import { useCollections, useDocumentSearch } from '../hooks/useOutlineAPI'
 import { useQueryClient } from '@tanstack/react-query'
+import { useTheme } from '../contexts/ThemeContext'
 
 export default function Home() {
   const queryClient = useQueryClient()
+  const { darkMode, toggleDarkMode } = useTheme()
   const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiUrl, setApiUrl] = useState('https://app.getoutline.com')
@@ -49,27 +51,38 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className={`min-h-screen ${darkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className={`${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'} shadow-sm border-b`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-semibold text-gray-900">Outline API GUI</h1>
+            <h1 className={`text-xl font-semibold ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Outline API GUI</h1>
             <div className="flex items-center space-x-2">
               <button
                 onClick={handleRefresh}
-                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
                 title="Refresh"
                 disabled={collectionsLoading}
               >
-                <RefreshCw className={`h-5 w-5 text-gray-600 ${collectionsLoading ? 'animate-spin' : ''}`} />
+                <RefreshCw className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'} ${collectionsLoading ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={toggleDarkMode}
+                className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+                title="Toggle Dark Mode"
+              >
+                {darkMode ? (
+                  <Sun className="h-5 w-5 text-gray-300" />
+                ) : (
+                  <Moon className="h-5 w-5 text-gray-600" />
+                )}
               </button>
               <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                className={`p-2 rounded ${darkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
                 title="Settings"
               >
-                <Settings className="h-5 w-5 text-gray-600" />
+                <Settings className={`h-5 w-5 ${darkMode ? 'text-gray-300' : 'text-gray-600'}`} />
               </button>
             </div>
           </div>
@@ -87,8 +100,8 @@ export default function Home() {
         ) : (
           <>
             {/* Document Search */}
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6 mb-6`}>
+              <h2 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'} mb-4 flex items-center`}>
                 <Search className="h-5 w-5 mr-2" />
                 Document Search
               </h2>
@@ -98,7 +111,7 @@ export default function Home() {
                   value={searchInput}
                   onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Search documents..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className={`flex-1 px-3 py-2 border ${darkMode ? 'border-gray-600 bg-gray-700 text-gray-100' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500`}
                 />
                 <button
                   type="submit"
@@ -117,11 +130,11 @@ export default function Home() {
                       <Link
                         key={doc.id}
                         href={`/document/${doc.id}`}
-                        className="block p-3 border rounded-lg hover:bg-gray-50"
+                        className={`block p-3 border rounded-lg ${darkMode ? 'border-gray-700 hover:bg-gray-700' : 'hover:bg-gray-50'}`}
                       >
-                        <div className="flex items-center">
-                          <FileText className="h-4 w-4 mr-2 text-gray-400" />
-                          <span className="font-medium">{doc.title}</span>
+                        <div className="flex items-start">
+                          <FileText className={`h-4 w-4 mr-2 flex-shrink-0 mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`} />
+                          <span className={`font-medium ${darkMode ? 'text-gray-100' : ''} break-words`}>{doc.title}</span>
                         </div>
                       </Link>
                     )
@@ -131,41 +144,41 @@ export default function Home() {
             </div>
 
             {/* Collections */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className={`${darkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg shadow p-6`}>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-lg font-medium text-gray-900">Collections</h2>
+                <h2 className={`text-lg font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'}`}>Collections</h2>
                 {collections.length > 0 && (
-                  <span className="text-sm text-gray-500">
+                  <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                     {collections.length} collections (cached)
                   </span>
                 )}
               </div>
               {collectionsLoading ? (
-                <p className="text-gray-500">Loading collections...</p>
+                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Loading collections...</p>
               ) : collectionsError ? (
                 <p className="text-red-600">{collectionsError.message}</p>
               ) : collections.length === 0 ? (
-                <p className="text-gray-500">No collections found</p>
+                <p className={`${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>No collections found</p>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {collections.map((collection) => (
                     <Link
                       key={collection.id}
                       href={`/collection/${collection.id}`}
-                      className="block p-4 border rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition-colors"
+                      className={`block p-4 border rounded-lg ${darkMode ? 'border-gray-700 hover:border-indigo-500 hover:bg-gray-700' : 'hover:border-indigo-500 hover:bg-indigo-50'} transition-colors`}
                     >
-                      <div className="flex items-center">
+                      <div className="flex items-start">
                         <div
-                          className="w-8 h-8 rounded flex items-center justify-center mr-3"
+                          className="w-8 h-8 rounded flex items-center justify-center mr-3 flex-shrink-0"
                           style={{ backgroundColor: collection.color || '#6366f1' }}
                         >
-                          {collection.icon ? (
+                          {collection.icon && collection.icon.length <= 2 ? (
                             <span className="text-white text-sm">{collection.icon}</span>
                           ) : (
                             <Folder className="w-4 h-4 text-white" />
                           )}
                         </div>
-                        <h3 className="font-medium text-gray-900">{collection.name}</h3>
+                        <h3 className={`font-medium ${darkMode ? 'text-gray-100' : 'text-gray-900'} break-words`}>{collection.name}</h3>
                       </div>
                     </Link>
                   ))}

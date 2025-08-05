@@ -1,5 +1,6 @@
 import './globals.css'
 import QueryProvider from '../components/QueryProvider'
+import { ThemeProvider } from '../contexts/ThemeContext'
 
 export const metadata = {
   title: 'Outline GUI',
@@ -15,7 +16,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <QueryProvider>
-          {children}
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
         </QueryProvider>
       </body>
     </html>

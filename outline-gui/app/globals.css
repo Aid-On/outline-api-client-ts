@@ -2,6 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Custom HR styles for better spacing in prose */
+.prose hr,
+.prose-invert hr {
+  margin-top: 3rem !important;
+  margin-bottom: 3rem !important;
+}
+
 /* GitHub markdown styles enhancement */
 .wmde-markdown {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji';
