@@ -1,19 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Settings, Search, Folder, FileText } from 'lucide-react'
+import { Settings, Search, Folder, FileText, RefreshCw } from 'lucide-react'
 import SettingsModal from '../components/SettingsModal'
 import Link from 'next/link'
+import { useCollections, useDocumentSearch } from '../hooks/useOutlineAPI'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function Home() {
+  const queryClient = useQueryClient()
   const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiUrl, setApiUrl] = useState('https://app.getoutline.com')
-  const [collections, setCollections] = useState<any[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [searchResults, setSearchResults] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [searchInput, setSearchInput] = useState('')
 
   // Load settings from localStorage on mount
   useEffect(() => {
@@ -24,12 +24,9 @@ export default function Home() {
     if (savedApiUrl) setApiUrl(savedApiUrl)
   }, [])
 
-  // Fetch collections when API key is available
-  useEffect(() => {
-    if (apiKey) {
-      fetchCollections()
-    }
-  }, [apiKey, apiUrl])
+  // React Queryフックを使用
+  const { data: collections = [], isLoading: collectionsLoading, error: collectionsError, refetch: refetchCollections } = useCollections({ apiKey, apiUrl })
+  const { data: searchResults = [], isLoading: searchLoading } = useDocumentSearch(searchQuery, { apiKey, apiUrl })
 
   const handleSaveSettings = (newApiKey: string, newApiUrl: string) => {
     setApiKey(newApiKey)
@@ -40,47 +37,15 @@ export default function Home() {
     localStorage.setItem('outline-api-url', newApiUrl)
   }
 
-  const fetchCollections = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(`/api/collections?action=list&includePrivate=true`, {
-        headers: {
-          'x-api-key': apiKey,
-          'x-api-url': apiUrl,
-        },
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to fetch collections')
-      setCollections(data.data || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['collections'] })
+    refetchCollections()
   }
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!searchQuery.trim()) return
-    
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(`/api/documents?action=search&query=${encodeURIComponent(searchQuery)}`, {
-        headers: {
-          'x-api-key': apiKey,
-          'x-api-url': apiUrl,
-        },
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Search failed')
-      setSearchResults(data.data || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+    if (!searchInput.trim()) return
+    setSearchQuery(searchInput)
   }
 
   return (
@@ -90,13 +55,23 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl font-semibold text-gray-900">Outline API GUI</h1>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              title="Settings"
-            >
-              <Settings className="h-5 w-5 text-gray-600" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleRefresh}
+                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="Refresh"
+                disabled={collectionsLoading}
+              >
+                <RefreshCw className={`h-5 w-5 text-gray-600 ${collectionsLoading ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={() => setShowSettings(true)}
+                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="Settings"
+              >
+                <Settings className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -120,17 +95,17 @@ export default function Home() {
               <form onSubmit={handleSearch} className="flex gap-2">
                 <input
                   type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={searchInput}
+                  onChange={(e) => setSearchInput(e.target.value)}
                   placeholder="Search documents..."
                   className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={searchLoading}
                   className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50"
                 >
-                  Search
+                  {searchLoading ? 'Searching...' : 'Search'}
                 </button>
               </form>
               
@@ -157,11 +132,18 @@ export default function Home() {
 
             {/* Collections */}
             <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">Collections</h2>
-              {loading && !searchQuery ? (
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-lg font-medium text-gray-900">Collections</h2>
+                {collections.length > 0 && (
+                  <span className="text-sm text-gray-500">
+                    {collections.length} collections (cached)
+                  </span>
+                )}
+              </div>
+              {collectionsLoading ? (
                 <p className="text-gray-500">Loading collections...</p>
-              ) : error ? (
-                <p className="text-red-600">{error}</p>
+              ) : collectionsError ? (
+                <p className="text-red-600">{collectionsError.message}</p>
               ) : collections.length === 0 ? (
                 <p className="text-gray-500">No collections found</p>
               ) : (

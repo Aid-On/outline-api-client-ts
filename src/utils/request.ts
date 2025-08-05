@@ -54,7 +54,20 @@ export class HttpClient {
           signal: AbortSignal.timeout(this.timeout),
         });
 
-        const responseData = await response.json() as ApiResponse<T> | ApiError;
+        // Get response text first to debug empty responses
+        const responseText = await response.text();
+        
+        if (!responseText) {
+          throw new Error(`Empty response from ${url}`);
+        }
+
+        let responseData: ApiResponse<T> | ApiError;
+        try {
+          responseData = JSON.parse(responseText) as ApiResponse<T> | ApiError;
+        } catch (parseError) {
+          console.error('Failed to parse response:', responseText);
+          throw new Error(`Invalid JSON response from ${url}: ${responseText.substring(0, 100)}`);
+        }
 
         if (!response.ok) {
           const error = responseData as ApiError;

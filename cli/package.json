@@ -20,6 +20,7 @@
     "uninstall:local": "npm uninstall -g oln-cli"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.84.1",
     "chalk": "^5.3.0",
     "commander": "^11.1.0",
     "dotenv": "^16.3.1",

@@ -22,7 +22,11 @@ export async function GET(request: NextRequest) {
   console.log('Documents API - Using URL:', formattedApiUrl)
   console.log('Documents API - Action:', action)
   
-  const client = new OutlineClient({ apiKey, apiUrl: formattedApiUrl })
+  const client = new OutlineClient({ 
+    apiKey, 
+    apiUrl: formattedApiUrl,
+    timeout: 60000 // 60秒のタイムアウト
+  })
   
   try {
     switch (action) {

@@ -20,7 +20,11 @@ export async function GET(request: NextRequest) {
   console.log('Collections API - Using URL:', formattedApiUrl)
   console.log('Collections API - Action:', action)
   
-  const client = new OutlineClient({ apiKey, apiUrl: formattedApiUrl })
+  const client = new OutlineClient({ 
+    apiKey, 
+    apiUrl: formattedApiUrl,
+    timeout: 60000 // 60秒のタイムアウト
+  })
   
   try {
     switch (action) {

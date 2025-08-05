@@ -2,22 +2,25 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { Settings, ArrowLeft, FileText, Clock } from 'lucide-react'
+import { Settings, ArrowLeft, FileText, Clock, RefreshCw } from 'lucide-react'
 import SettingsModal from '../../../components/SettingsModal'
 import Link from 'next/link'
+import { useCollectionInfo, useCollectionDocuments } from '../../../hooks/useOutlineAPI'
+import { useQueryClient } from '@tanstack/react-query'
 
 export default function CollectionPage() {
   const router = useRouter()
   const params = useParams()
+  const queryClient = useQueryClient()
   const id = params?.id as string
   
   const [showSettings, setShowSettings] = useState(false)
   const [apiKey, setApiKey] = useState('')
   const [apiUrl, setApiUrl] = useState('https://app.getoutline.com')
-  const [collection, setCollection] = useState<any>(null)
-  const [documents, setDocuments] = useState<any[]>([])
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  
+  // React Queryフックを使用
+  const { data: collection, isLoading: collectionLoading, refetch: refetchCollection } = useCollectionInfo(id, { apiKey, apiUrl })
+  const { data: documents = [], isLoading: documentsLoading, error, refetch: refetchDocuments } = useCollectionDocuments(id, { apiKey, apiUrl })
 
   // Load settings from localStorage
   useEffect(() => {
@@ -28,48 +31,11 @@ export default function CollectionPage() {
     if (savedApiUrl) setApiUrl(savedApiUrl)
   }, [])
 
-  // Fetch collection info and documents
-  useEffect(() => {
-    if (apiKey && id) {
-      fetchCollectionInfo()
-      fetchDocuments()
-    }
-  }, [apiKey, apiUrl, id])
-
-  const fetchCollectionInfo = async () => {
-    try {
-      const response = await fetch(`/api/collections?action=info&id=${id}`, {
-        headers: {
-          'x-api-key': apiKey,
-          'x-api-url': apiUrl,
-        },
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to fetch collection')
-      setCollection(data.data)
-    } catch (err: any) {
-      setError(err.message)
-    }
-  }
-
-  const fetchDocuments = async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const response = await fetch(`/api/documents?action=list&collectionId=${id}&limit=50`, {
-        headers: {
-          'x-api-key': apiKey,
-          'x-api-url': apiUrl,
-        },
-      })
-      const data = await response.json()
-      if (!response.ok) throw new Error(data.error || 'Failed to fetch documents')
-      setDocuments(data.data || [])
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
-    }
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ['collections', 'info', id] })
+    queryClient.invalidateQueries({ queryKey: ['documents', 'list', id] })
+    refetchCollection()
+    refetchDocuments()
   }
 
   const handleSaveSettings = (newApiKey: string, newApiUrl: string) => {
@@ -102,13 +68,23 @@ export default function CollectionPage() {
                 {collection?.name || 'Loading...'}
               </h1>
             </div>
-            <button
-              onClick={() => setShowSettings(true)}
-              className="p-2 rounded hover:bg-gray-100 transition-colors"
-              title="Settings"
-            >
-              <Settings className="h-5 w-5 text-gray-600" />
-            </button>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={handleRefresh}
+                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="Refresh"
+                disabled={collectionLoading || documentsLoading}
+              >
+                <RefreshCw className={`h-5 w-5 text-gray-600 ${collectionLoading || documentsLoading ? 'animate-spin' : ''}`} />
+              </button>
+              <button
+                onClick={() => setShowSettings(true)}
+                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                title="Settings"
+              >
+                <Settings className="h-5 w-5 text-gray-600" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -127,12 +103,19 @@ export default function CollectionPage() {
               <p className="text-gray-600 mb-6">{collection.description}</p>
             )}
             
-            <h2 className="text-lg font-medium text-gray-900 mb-4">Documents</h2>
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-lg font-medium text-gray-900">Documents</h2>
+              {documents.length > 0 && (
+                <span className="text-sm text-gray-500">
+                  {documents.length} documents (cached)
+                </span>
+              )}
+            </div>
             
-            {loading ? (
+            {documentsLoading ? (
               <p className="text-gray-500">Loading documents...</p>
             ) : error ? (
-              <p className="text-red-600">{error}</p>
+              <p className="text-red-600">{error.message}</p>
             ) : documents.length === 0 ? (
               <p className="text-gray-500">No documents found in this collection</p>
             ) : (
