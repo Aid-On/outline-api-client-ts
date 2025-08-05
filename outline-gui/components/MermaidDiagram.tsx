@@ -67,5 +67,9 @@ export default function MermaidDiagram({ chart, darkMode = false }: MermaidDiagr
     }
   }, [chart, darkMode])
 
-  return <div ref={ref} className="mermaid my-4" />
+  return (
+    <div className="my-6 w-full">
+      <div ref={ref} className="mermaid" />
+    </div>
+  )
 }

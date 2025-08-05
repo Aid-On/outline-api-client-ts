@@ -96,12 +96,16 @@
 /* Mermaid diagram styling */
 .mermaid {
   text-align: center;
-  margin: 1.5rem 0;
+  margin: 2rem 0;
+  width: 100%;
 }
 
 .mermaid svg {
   max-width: 100%;
+  width: 100%;
   height: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 /* Dark mode for Mermaid */
