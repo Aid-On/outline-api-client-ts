@@ -124,13 +124,13 @@ export default function DocumentView({ apiKey, apiUrl, documentId, onBack }: Doc
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
+    <div className="bg-white rounded-lg shadow-sm">
       <div className="border-b border-gray-200 px-6 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <button
               onClick={onBack}
-              className="p-2 rounded hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
               title="Back to documents"
             >
               <ArrowLeft className="w-5 h-5 text-gray-600" />
@@ -140,7 +140,7 @@ export default function DocumentView({ apiKey, apiUrl, documentId, onBack }: Doc
           <div className="flex items-center space-x-2">
             <button
               onClick={handleExport}
-              className="p-2 rounded hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
               title="Export as Markdown"
             >
               <Download className="w-5 h-5 text-gray-600" />
@@ -156,9 +156,9 @@ export default function DocumentView({ apiKey, apiUrl, documentId, onBack }: Doc
         <div className="prose prose-lg max-w-4xl mx-auto
           prose-headings:font-semibold prose-headings:text-gray-900
           prose-p:text-gray-700 prose-p:leading-relaxed
-          prose-a:text-indigo-600 prose-a:no-underline hover:prose-a:underline
+          prose-a:text-indigo-600 prose-a:no-underline prose-a:hover:underline
           prose-strong:text-gray-900 prose-strong:font-semibold
-          prose-code:text-indigo-600 prose-code:bg-indigo-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded
+          prose-code:text-indigo-600 prose-code:bg-indigo-50 prose-code:px-1 prose-code:py-0.5 prose-code:rounded-sm
           prose-pre:bg-gray-50 prose-pre:border prose-pre:border-gray-200
           prose-blockquote:border-l-4 prose-blockquote:border-indigo-400 prose-blockquote:pl-4 prose-blockquote:italic
           prose-img:rounded-lg prose-img:shadow-md

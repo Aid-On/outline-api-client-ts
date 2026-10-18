@@ -86,7 +86,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-xs border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-xl font-semibold text-gray-900">Outline API GUI</h1>
@@ -112,7 +112,7 @@ export default function Home() {
         ) : (
           <>
             {/* Document Search */}
-            <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4 flex items-center">
                 <Search className="h-5 w-5 mr-2" />
                 Document Search
@@ -123,7 +123,7 @@ export default function Home() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search documents..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-hidden focus:ring-2 focus:ring-indigo-500"
                 />
                 <button
                   type="submit"
@@ -156,7 +156,7 @@ export default function Home() {
             </div>
 
             {/* Collections */}
-            <div className="bg-white rounded-lg shadow p-6">
+            <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-lg font-medium text-gray-900 mb-4">Collections</h2>
               {loading && !searchQuery ? (
                 <p className="text-gray-500">Loading collections...</p>
@@ -174,7 +174,7 @@ export default function Home() {
                     >
                       <div className="flex items-center">
                         <div
-                          className="w-8 h-8 rounded flex items-center justify-center mr-3"
+                          className="w-8 h-8 rounded-sm flex items-center justify-center mr-3"
                           style={{ backgroundColor: collection.color || '#6366f1' }}
                         >
                           {collection.icon ? (

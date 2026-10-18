@@ -87,13 +87,13 @@ export default function CollectionPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-xs border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.push('/')}
-                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
                 title="Back to collections"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
@@ -104,7 +104,7 @@ export default function CollectionPage() {
             </div>
             <button
               onClick={() => setShowSettings(true)}
-              className="p-2 rounded hover:bg-gray-100 transition-colors"
+              className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
               title="Settings"
             >
               <Settings className="h-5 w-5 text-gray-600" />
@@ -122,7 +122,7 @@ export default function CollectionPage() {
             </p>
           </div>
         ) : (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             {collection?.description && (
               <p className="text-gray-600 mb-6">{collection.description}</p>
             )}

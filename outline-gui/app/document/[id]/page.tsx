@@ -84,13 +84,13 @@ export default function DocumentPage() {
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white shadow-xs border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-4">
               <button
                 onClick={() => router.back()}
-                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
                 title="Back"
               >
                 <ArrowLeft className="h-5 w-5 text-gray-600" />
@@ -103,7 +103,7 @@ export default function DocumentPage() {
               {document && (
                 <button
                   onClick={handleExport}
-                  className="p-2 rounded hover:bg-gray-100 transition-colors"
+                  className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
                   title="Export as Markdown"
                 >
                   <Download className="h-5 w-5 text-gray-600" />
@@ -111,7 +111,7 @@ export default function DocumentPage() {
               )}
               <button
                 onClick={() => setShowSettings(true)}
-                className="p-2 rounded hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-sm hover:bg-gray-100 transition-colors"
                 title="Settings"
               >
                 <Settings className="h-5 w-5 text-gray-600" />
@@ -130,15 +130,15 @@ export default function DocumentPage() {
             </p>
           </div>
         ) : loading ? (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <p className="text-gray-500">Loading document...</p>
           </div>
         ) : error ? (
-          <div className="bg-white rounded-lg shadow p-6">
+          <div className="bg-white rounded-lg shadow-sm p-6">
             <p className="text-red-600">{error}</p>
           </div>
         ) : document ? (
-          <div className="bg-white rounded-lg shadow">
+          <div className="bg-white rounded-lg shadow-sm">
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center space-x-4 text-sm text-gray-500">
                 {document.createdBy && (
