@@ -107,7 +107,7 @@ export default function DocumentsList({ apiKey, apiUrl, collectionId, onSelectDo
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3 flex-1">
-              <FileText className="w-5 h-5 text-gray-400 flex-shrink-0" />
+              <FileText className="w-5 h-5 text-gray-400 shrink-0" />
               <div className="flex-1 min-w-0">
                 <h3 className="font-medium text-gray-900 truncate">{document.title}</h3>
                 {document.text && (
